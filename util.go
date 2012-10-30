@@ -120,25 +120,35 @@ func parseString(data []byte) string {
 	return strings.TrimRight(s, "\u0000")
 }
 
-func readBytes(reader *bufio.Reader, c int) []byte {
+func readBytes(reader *bufio.Reader, c int) ([]byte, error) {
 	b := make([]byte, c)
-	pos := 0
-	for pos < c {
-		i, err := reader.Read(b[pos:])
-		pos += i
-		if err != nil {
-			panic(err)
-		}
+
+	n, err := reader.Read(b)
+	if err != nil {
+		return nil, err
 	}
-	return b
+	if n != c {
+		return nil, fmt.Errorf("short read, %d/%d", n, c)
+	}
+	return b, nil
 }
 
 func readString(reader *bufio.Reader, c int) string {
-	return parseString(readBytes(reader, c))
+	b, err := readBytes(reader, c)
+	if err != nil {
+		// FIXME: return an error
+		return ""
+	}
+	return parseString(b)
 }
 
 func readGenre(reader *bufio.Reader, c int) string {
-	genre := parseString(readBytes(reader, c))
+	b, err := readBytes(reader, c)
+	if err != nil {
+		// FIXME: return an error
+		return ""
+	}
+	genre := parseString(b)
 	return convertID3v1Genre(genre)
 }
 

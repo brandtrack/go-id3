@@ -16,18 +16,30 @@ package id3
 
 import (
 	"bufio"
+	"fmt"
 )
 
 // ID3 v2.2 uses 24-bit big endian frame sizes.
-func parseID3v22FrameSize(reader *bufio.Reader) int {
-	size := readBytes(reader, 3)
-	return int(size[0])<<16 | int(size[1])<<8 | int(size[2])
+func parseID3v22FrameSize(reader *bufio.Reader) (int, error) {
+	size, err := readBytes(reader, 3)
+	if err != nil {
+		return -1, err
+	}
+	return int(size[0])<<16 | int(size[1])<<8 | int(size[2]), nil
 }
 
-func parseID3v22File(reader *bufio.Reader, file *File) {
+func parseID3v22File(reader *bufio.Reader) (*File, error) {
+	file := new(File)
 	for hasFrame(reader, 3) {
-		id := string(readBytes(reader, 3))
-		size := parseID3v22FrameSize(reader)
+		b, err := readBytes(reader, 3)
+		if err != nil {
+			return nil, fmt.Errorf("parseID3v22File: %s", err)
+		}
+		id := string(b)
+		size, err := parseID3v22FrameSize(reader)
+		if err != nil {
+			return nil, err
+		}
 
 		switch id {
 		case "TAL":
@@ -48,4 +60,5 @@ func parseID3v22File(reader *bufio.Reader, file *File) {
 			skipBytes(reader, size)
 		}
 	}
+	return file, nil
 }

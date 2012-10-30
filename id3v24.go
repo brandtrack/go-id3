@@ -19,14 +19,26 @@ import (
 )
 
 // ID3 v2.4 uses sync-safe frame sizes similar to those found in the header.
-func parseID3v24Size(reader *bufio.Reader) int {
-	return int(parseSize(readBytes(reader, 4)))
+func parseID3v24Size(reader *bufio.Reader) (int, error) {
+	size, err := readBytes(reader, 4)
+	if err != nil {
+		return -1, err
+	}
+	return int(parseSize(size)), nil
 }
 
-func parseID3v24File(reader *bufio.Reader, file *File) {
+func parseID3v24File(reader *bufio.Reader) (*File, error) {
+	file := new(File)
 	for hasFrame(reader, 4) {
-		id := string(readBytes(reader, 4))
-		size := parseID3v24Size(reader)
+		b, err := readBytes(reader, 4)
+		if err != nil {
+			return nil, err
+		}
+		id := string(b)
+		size, err := parseID3v24Size(reader)
+		if err != nil {
+			return nil, err
+		}
 
 		// Skip over frame flags.
 		skipBytes(reader, 2)
@@ -53,4 +65,5 @@ func parseID3v24File(reader *bufio.Reader, file *File) {
 			skipBytes(reader, size)
 		}
 	}
+	return file, nil
 }

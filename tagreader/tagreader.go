@@ -35,14 +35,14 @@ func main() {
 		}
 		defer f.Close()
 
-		tags := id3.Read(f)
-		if tags == nil {
-			fmt.Fprintf(os.Stderr, "Could not read ID3 information from %s\n", s)
+		tags, err := id3.Read(f)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "id3.Read('%s'): %s\n", s, err)
 			return
 		}
 
 		fmt.Println(s)
-		fmt.Printf("Header\t%#v\n", tags.Header)
+		fmt.Printf("Header\t%#v\n", *tags.Header)
 		fmt.Printf("Name\t%s\n", tags.Name)
 		fmt.Printf("Artist\t%s\n", tags.Artist)
 		fmt.Printf("Album\t%s\n", tags.Album)

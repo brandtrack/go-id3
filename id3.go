@@ -39,7 +39,7 @@ type ID3v2Header struct {
 
 // A parsed ID3 file with common fields exposed.
 type File struct {
-	Header ID3v2Header
+	Header *ID3v2Header
 
 	Name   string
 	Artist string
@@ -53,32 +53,36 @@ type File struct {
 
 // Parse the input for ID3 information. Returns nil if parsing failed or the
 // input didn't contain ID3 information.
-func Read(reader io.Reader) (file *File) {
-	defer func() {
-		if r := recover(); r != nil {
-			file = nil
-		}
-
-	}()
-	file = new(File)
-	bufReader := bufio.NewReader(reader)
-	if !isID3Tag(bufReader) {
-		return
+func Read(reader io.Reader) (*File, error) {
+	buf := bufio.NewReader(reader)
+	if !isID3Tag(buf) {
+		return nil, fmt.Errorf("no id3 tags")
 	}
 
-	parseID3v2Header(bufReader, file)
-	limitReader := bufio.NewReader(io.LimitReader(bufReader, int64(file.Header.Size)))
-	if file.Header.Version == 2 {
-		parseID3v22File(limitReader, file)
-	} else if file.Header.Version == 3 {
-		parseID3v23File(limitReader, file)
-	} else if file.Header.Version == 4 {
-		parseID3v24File(limitReader, file)
-	} else {
-		panic(fmt.Sprintf("Unrecognized ID3v2 version: %d", file.Header.Version))
+	header, err := parseID3v2Header(buf);
+	if err != nil {
+		return nil, fmt.Errorf("parseHeader: %s", err)
 	}
 
-	return
+	var tags *File
+	limitReader := bufio.NewReader(io.LimitReader(buf, int64(header.Size)))
+	switch header.Version {
+	case 2:
+		tags, err = parseID3v22File(limitReader)
+	case 3:
+		tags, err = parseID3v23File(limitReader)
+	case 4:
+		tags, err = parseID3v24File(limitReader)
+	default:
+		return nil, fmt.Errorf("Unrecognized ID3v2 version: %d", header.Version)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	tags.Header = header
+	return tags, nil
 }
 
 func isID3Tag(reader *bufio.Reader) bool {
@@ -89,13 +93,20 @@ func isID3Tag(reader *bufio.Reader) bool {
 	return data[0] == 'I' && data[1] == 'D' && data[2] == '3'
 }
 
-func parseID3v2Header(reader *bufio.Reader, file *File) {
-	data := readBytes(reader, 10)
-	file.Header.Version = int(data[3])
-	file.Header.MinorVersion = int(data[4])
-	file.Header.Unsynchronization = data[5]&1<<7 != 0
-	file.Header.Extended = data[5]&1<<6 != 0
-	file.Header.Experimental = data[5]&1<<5 != 0
-	file.Header.Footer = data[5]&1<<4 != 0
-	file.Header.Size = parseSize(data[6:])
+func parseID3v2Header(reader *bufio.Reader) (*ID3v2Header, error) {
+	h := new(ID3v2Header)
+	data, err := readBytes(reader, 10)
+	if err != nil {
+		return nil, fmt.Errorf("parseHeader: %s", err)
+	}
+
+	h.Version = int(data[3])
+	h.MinorVersion = int(data[4])
+	h.Unsynchronization = data[5]&1<<7 != 0
+	h.Extended = data[5]&1<<6 != 0
+	h.Experimental = data[5]&1<<5 != 0
+	h.Footer = data[5]&1<<4 != 0
+	h.Size = parseSize(data[6:])
+
+	return h, nil
 }

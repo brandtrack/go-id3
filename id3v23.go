@@ -26,9 +26,14 @@ func parseID3v23Size(reader *bufio.Reader) int {
 	return int(size)
 }
 
-func parseID3v23File(reader *bufio.Reader, file *File) {
+func parseID3v23File(reader *bufio.Reader) (*File, error) {
+	file := new(File)
 	for hasFrame(reader, 4) {
-		id := string(readBytes(reader, 4))
+		b, err := readBytes(reader, 4)
+		if err != nil {
+			return nil, err
+		}
+		id := string(b)
 		size := parseID3v23Size(reader)
 
 		// Skip over frame flags.
@@ -55,4 +60,5 @@ func parseID3v23File(reader *bufio.Reader, file *File) {
 			skipBytes(reader, size)
 		}
 	}
+	return file, nil
 }
