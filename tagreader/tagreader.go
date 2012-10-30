@@ -21,36 +21,40 @@ import (
 	"github.com/bpowers/go-id3"
 )
 
+func dumpFile(path string) {
+	f, err := os.Open(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "os.Open(%s): %s\n", path, err)
+		return
+	}
+	defer f.Close()
+
+	tags, err := id3.Read(f)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "id3.Read(%s): %s\n", path, err)
+		return
+	}
+
+	fmt.Println(path)
+	fmt.Printf("Header\t%#v\n", *tags.Header)
+	fmt.Printf("Name\t%s\n", tags.Name)
+	fmt.Printf("Artist\t%s\n", tags.Artist)
+	fmt.Printf("Album\t%s\n", tags.Album)
+	fmt.Printf("Year\t%s\n", tags.Year)
+	fmt.Printf("Track\t%s\n", tags.Track)
+	fmt.Printf("Disc\t%s\n", tags.Disc)
+	fmt.Printf("Genre\t%s\n", tags.Genre)
+	fmt.Printf("Length\t%s\n", tags.Length)
+	fmt.Println()
+}
+
 func main() {
 	if len(os.Args) == 1 {
 		fmt.Printf("Usage: %s [FILE]...\n", os.Args[0])
 		return
 	}
 
-	for _, s := range os.Args[1:] {
-		f, err := os.Open(s)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Could not open %s: %s\n", s, err)
-			return
-		}
-		defer f.Close()
-
-		tags, err := id3.Read(f)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "id3.Read('%s'): %s\n", s, err)
-			return
-		}
-
-		fmt.Println(s)
-		fmt.Printf("Header\t%#v\n", *tags.Header)
-		fmt.Printf("Name\t%s\n", tags.Name)
-		fmt.Printf("Artist\t%s\n", tags.Artist)
-		fmt.Printf("Album\t%s\n", tags.Album)
-		fmt.Printf("Year\t%s\n", tags.Year)
-		fmt.Printf("Track\t%s\n", tags.Track)
-		fmt.Printf("Disc\t%s\n", tags.Disc)
-		fmt.Printf("Genre\t%s\n", tags.Genre)
-		fmt.Printf("Length\t%s\n", tags.Length)
-		fmt.Println()
+	for _, path := range os.Args[1:] {
+		dumpFile(path)
 	}
 }
