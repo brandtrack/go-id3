@@ -18,17 +18,21 @@ Usage
 -----
 Pass in a suitable io.Reader and away you go!
 
-    fd, _ := os.Open("foo.mp3")
-    defer fd.Close()
-    file := id3.Read(fd)
-    if file != nil {
-            fmt.Println(file)
+    f, err := os.Open("foo.mp3")
+    if err != nil {
+            return err
     }
+    defer f.Close()
+    tags, err := id3.Read(f)
+    if err != nil {
+            return err
+    }
+    fmt.Println(tags.Artist)
 
 
 Examples
 --------
 An example tag reading program can be found under id3/tagreader.
 
-    go install github.com/dustin/id3/tagreader
-    $GOPATH/bin/tagreader path/to/file.mp3 [...]
+    go get github.com/bpowers/go-id3/tagreader
+    tagreader path/to/file.mp3 [...]
