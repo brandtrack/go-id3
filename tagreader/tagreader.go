@@ -18,37 +18,39 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/dustin/go-id3"
+	"github.com/bpowers/go-id3"
 )
 
 func main() {
 	if len(os.Args) == 1 {
-		fmt.Printf("Usage: %s [path to mp3s]\n", os.Args[0])
+		fmt.Printf("Usage: %s [FILE]...\n", os.Args[0])
 		return
 	}
 
 	for _, s := range os.Args[1:] {
-		var fd, err = os.Open(s)
+		f, err := os.Open(s)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Could not open %s: %s\n", s, err)
 			return
 		}
-		file := id3.Read(fd)
-		if file == nil {
+		defer f.Close()
+
+		tags := id3.Read(f)
+		if tags == nil {
 			fmt.Fprintf(os.Stderr, "Could not read ID3 information from %s\n", s)
-		} else {
-			fmt.Println(s)
-			fmt.Printf("Header\t%#v\n", file.Header)
-			fmt.Printf("Name\t%s\n", file.Name)
-			fmt.Printf("Artist\t%s\n", file.Artist)
-			fmt.Printf("Album\t%s\n", file.Album)
-			fmt.Printf("Year\t%s\n", file.Year)
-			fmt.Printf("Track\t%s\n", file.Track)
-			fmt.Printf("Disc\t%s\n", file.Disc)
-			fmt.Printf("Genre\t%s\n", file.Genre)
-			fmt.Printf("Length\t%s\n", file.Length)
-			fmt.Println()
+			return
 		}
-		fd.Close()
+
+		fmt.Println(s)
+		fmt.Printf("Header\t%#v\n", tags.Header)
+		fmt.Printf("Name\t%s\n", tags.Name)
+		fmt.Printf("Artist\t%s\n", tags.Artist)
+		fmt.Printf("Album\t%s\n", tags.Album)
+		fmt.Printf("Year\t%s\n", tags.Year)
+		fmt.Printf("Track\t%s\n", tags.Track)
+		fmt.Printf("Disc\t%s\n", tags.Disc)
+		fmt.Printf("Genre\t%s\n", tags.Genre)
+		fmt.Printf("Length\t%s\n", tags.Length)
+		fmt.Println()
 	}
 }
