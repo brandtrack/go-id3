@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bpowers/go-id3"
+	"github.com/bpowers/go-id3/id3"
 )
 
 func dumpFile(path string) {
