@@ -1,7 +1,5 @@
 General
 -------
-  - ID3 v1 support
-  - ID3 v2.x code can be deduplicated
   - ID3 v2.x appended tags
   - ID3 (un)synchronization handling
   - ID3 v2.4 timestamp parsing
