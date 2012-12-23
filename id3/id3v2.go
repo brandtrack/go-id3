@@ -16,7 +16,6 @@ package id3
 
 import (
 	"bufio"
-	"encoding/binary"
 	"fmt"
 	"io"
 )
@@ -31,38 +30,6 @@ type ID3v2Header struct {
 	Experimental      bool
 	Footer            bool
 	Size              int32
-}
-
-var ID3v22Tags = map[string]string{
-	"TAL": "album",
-	"TRK": "track",
-	"TP1": "artist",
-	"TT2": "name",
-	"TYE": "year",
-	"TPA": "disc",
-	"TCO": "genre",
-}
-
-var ID3v23Tags = map[string]string{
-	"TALB": "album",
-	"TRCK": "track",
-	"TPE1": "artist",
-	"TIT2": "name",
-	"TYER": "year",
-	"TPOS": "disc",
-	"TCON": "genre",
-	"TLEN": "length",
-}
-
-var ID3v24Tags = map[string]string{
-	"TALB": "album",
-	"TRCK": "track",
-	"TPE1": "artist",
-	"TIT2": "name",
-	"TDRC": "year",
-	"TPOS": "disc",
-	"TCON": "genre",
-	"TLEN": "length",
 }
 
 func hasID3v2Tag(reader *bufio.Reader) bool {
@@ -89,31 +56,6 @@ func parseID3v2Header(reader *bufio.Reader) (*ID3v2Header, error) {
 	h.Size = parseSize(data[6:])
 
 	return h, nil
-}
-
-// ID3 v2.2 uses 24-bit big endian frame sizes.
-func parseID3v22FrameSize(reader *bufio.Reader) (int, error) {
-	size, err := readBytes(reader, 3)
-	if err != nil {
-		return -1, err
-	}
-	return int(size[0])<<16 | int(size[1])<<8 | int(size[2]), nil
-}
-
-// ID3 v2.3 doesn't use sync-safe frame sizes: read in as a regular big endian number.
-func parseID3v23FrameSize(reader *bufio.Reader) (int, error) {
-	var size int32
-	binary.Read(reader, binary.BigEndian, &size)
-	return int(size), nil
-}
-
-// ID3 v2.4 uses sync-safe frame sizes similar to those found in the header.
-func parseID3v24FrameSize(reader *bufio.Reader) (int, error) {
-	size, err := readBytes(reader, 4)
-	if err != nil {
-		return -1, err
-	}
-	return int(parseSize(size)), nil
 }
 
 func parseID3v2File(reader *bufio.Reader) (*File, error) {
