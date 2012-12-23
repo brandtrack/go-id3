@@ -35,5 +35,5 @@ func parseID3v24FrameSize(reader *bufio.Reader) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	return int(parseSize(size)), nil
+	return int(parseID3v2Size(size)), nil
 }

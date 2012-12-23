@@ -36,4 +36,3 @@ func parseID3v22FrameSize(reader *bufio.Reader) (int, error) {
 	}
 	return int(size[0])<<16 | int(size[1])<<8 | int(size[2]), nil
 }
-

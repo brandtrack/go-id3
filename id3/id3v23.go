@@ -36,4 +36,3 @@ func parseID3v23FrameSize(reader *bufio.Reader) (int, error) {
 	binary.Read(reader, binary.BigEndian, &size)
 	return int(size), nil
 }
-

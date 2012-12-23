@@ -17,8 +17,6 @@ package id3
 import (
 	"bufio"
 	"fmt"
-	"strings"
-	"unicode/utf16"
 )
 
 var skipBuffer []byte = make([]byte, 1024*4)
@@ -61,65 +59,6 @@ func toUTF16(data []byte) []uint16 {
 	return s
 }
 
-// Peeks at the buffer to see if there is a valid frame.
-func hasFrame(reader *bufio.Reader, frameSize int) bool {
-	data, err := reader.Peek(frameSize)
-	if err != nil {
-		return false
-	}
-
-	for _, c := range data {
-		if (c < 'A' || c > 'Z') && (c < '0' || c > '9') {
-			return false
-		}
-	}
-	return true
-}
-
-// Sizes are stored big endian but with the first bit set to 0 and always ignored.
-//
-// Refer to section 3.1 of http://id3.org/id3v2.4.0-structure
-func parseSize(data []byte) int32 {
-	size := int32(0)
-	for i, b := range data {
-		if b&0x80 > 0 {
-			fmt.Println("Size byte had non-zero first bit")
-		}
-
-		shift := uint32(len(data)-i-1) * 7
-		size |= int32(b&0x7f) << shift
-	}
-	return size
-}
-
-// Parses a string from frame data. The first byte represents the encoding:
-//   0x01  ISO-8859-1
-//   0x02  UTF-16 w/ BOM
-//   0x03  UTF-16BE w/o BOM
-//   0x04  UTF-8
-//
-// Refer to section 4 of http://id3.org/id3v2.4.0-structure
-func parseString(data []byte) string {
-	var s string
-	switch data[0] {
-	case 0: // ISO-8859-1 text.
-		s = ISO8859_1ToUTF8(data[1:])
-		break
-	case 1: // UTF-16 with BOM.
-		s = string(utf16.Decode(toUTF16(data[1:])))
-		break
-	case 2: // UTF-16BE without BOM.
-		panic("Unsupported text encoding UTF-16BE.")
-	case 3: // UTF-8 text.
-		s = string(data[1:])
-		break
-	default:
-		// No encoding, assume ISO-8859-1 text.
-		s = ISO8859_1ToUTF8(data)
-	}
-	return strings.TrimRight(s, "\u0000")
-}
-
 func readBytes(reader *bufio.Reader, c int) ([]byte, error) {
 	b := make([]byte, c)
 
@@ -131,25 +70,6 @@ func readBytes(reader *bufio.Reader, c int) ([]byte, error) {
 		return nil, fmt.Errorf("short read, %d/%d", n, c)
 	}
 	return b, nil
-}
-
-func readString(reader *bufio.Reader, c int) string {
-	b, err := readBytes(reader, c)
-	if err != nil {
-		// FIXME: return an error
-		return ""
-	}
-	return parseString(b)
-}
-
-func readGenre(reader *bufio.Reader, c int) string {
-	b, err := readBytes(reader, c)
-	if err != nil {
-		// FIXME: return an error
-		return ""
-	}
-	genre := parseString(b)
-	return convertID3v1Genre(genre)
 }
 
 func skipBytes(reader *bufio.Reader, c int) {
