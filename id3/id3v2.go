@@ -156,7 +156,6 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 		if ok != true {
 			// skip over unknown tags
 			skipBytes(lreader, size)
-			break
 		}
 
 		switch id {
@@ -176,8 +175,6 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 			file.Genre = readGenre(lreader, size)
 		case "length":
 			file.Length = readString(lreader, size)
-		default:
-			skipBytes(lreader, size)
 		}
 	}
 	return file, nil
