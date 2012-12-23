@@ -26,9 +26,7 @@ import (
 )
 
 // A parsed ID3 file with common fields exposed.
-type File struct {
-	Header *ID3v2Header
-
+type SimpleTags struct {
 	Name   string
 	Artist string
 	Album  string
@@ -43,7 +41,7 @@ type File struct {
 // input didn't contain ID3 information.
 // NOTE: ID3v1 and appended ID3v2.x are not supported without the ability
 // to seek in the input. Use ReadFile instead.
-func Read(reader io.Reader) (*File, error) {
+func Read(reader io.Reader) (*SimpleTags, error) {
 	buf := bufio.NewReader(reader)
 	if !hasID3v2Tag(buf) {
 		return nil, fmt.Errorf("no id3 tags")
@@ -57,7 +55,7 @@ func Read(reader io.Reader) (*File, error) {
 
 // Parse seekable stream for ID3 information. Returns nil if ID3 tag is
 // not found or parsing fails.
-func ReadFile(reader io.ReadSeeker) (*File, error) {
+func ReadFile(reader io.ReadSeeker) (*SimpleTags, error) {
 	buf := bufio.NewReader(reader)
 	if hasID3v1Tag(reader) {
 		tags, err := parseID3v1File(reader)

@@ -58,7 +58,7 @@ func parseID3v2Header(reader *bufio.Reader) (*ID3v2Header, error) {
 	return h, nil
 }
 
-func parseID3v2File(reader *bufio.Reader) (*File, error) {
+func parseID3v2File(reader *bufio.Reader) (*SimpleTags, error) {
 	var parseSize func(*bufio.Reader) (int, error)
 	var tagMap map[string]string
 	var tagLen int
@@ -85,8 +85,7 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 		return nil, fmt.Errorf("Unrecognized ID3v2 version: %d", header.Version)
 	}
 
-	file := new(File)
-	file.Header = header
+	tags := new(SimpleTags)
 	lreader := bufio.NewReader(io.LimitReader(reader, int64(header.Size)))
 	for hasFrame(lreader, tagLen) {
 		b, err := readBytes(lreader, tagLen)
@@ -110,22 +109,22 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 
 		switch id {
 		case "album":
-			file.Album = readString(lreader, size)
+			tags.Album = readString(lreader, size)
 		case "track":
-			file.Track = readString(lreader, size)
+			tags.Track = readString(lreader, size)
 		case "artist":
-			file.Artist = readString(lreader, size)
+			tags.Artist = readString(lreader, size)
 		case "name":
-			file.Name = readString(lreader, size)
+			tags.Name = readString(lreader, size)
 		case "year":
-			file.Year = readString(lreader, size)
+			tags.Year = readString(lreader, size)
 		case "disc":
-			file.Disc = readString(lreader, size)
+			tags.Disc = readString(lreader, size)
 		case "genre":
-			file.Genre = readGenre(lreader, size)
+			tags.Genre = readGenre(lreader, size)
 		case "length":
-			file.Length = readString(lreader, size)
+			tags.Length = readString(lreader, size)
 		}
 	}
-	return file, nil
+	return tags, nil
 }

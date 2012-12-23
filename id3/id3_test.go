@@ -23,7 +23,7 @@ import (
 
 type fileTest struct {
 	path string
-	file File
+	file SimpleTags
 }
 
 func testFile(t *testing.T, expected fileTest) {
@@ -106,21 +106,21 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestID3v220(t *testing.T) {
-	testFile(t, fileTest{"test_220.mp3", File{&ID3v2Header{2, 0, false, false, false, false, 226741},
+	testFile(t, fileTest{"test_220.mp3", SimpleTags{&ID3v2Header{2, 0, false, false, false, false, 226741},
 		"There There", "Radiohead", "Hail To The Thief", "2003", "9", "", "Alternative", ""}})
 }
 
 func TestID3v230(t *testing.T) {
-	testFile(t, fileTest{"test_230.mp3", File{&ID3v2Header{3, 0, false, false, false, false, 150717},
+	testFile(t, fileTest{"test_230.mp3", SimpleTags{&ID3v2Header{3, 0, false, false, false, false, 150717},
 		"Everything In Its Right Place", "Radiohead", "Kid A", "2000", "1", "", "Alternative", ""}})
 }
 
 func TestID3v240(t *testing.T) {
-	testFile(t, fileTest{"test_240.mp3", File{&ID3v2Header{4, 0, false, false, false, false, 165126},
+	testFile(t, fileTest{"test_240.mp3", SimpleTags{&ID3v2Header{4, 0, false, false, false, false, 165126},
 		"Give Up The Ghost", "Radiohead", "The King Of Limbs", "2011", "07/08", "1/1", "Alternative", ""}})
 }
 
 func TestISO8859_1(t *testing.T) {
-	testFile(t, fileTest{"test_iso8859_1.mp3", File{&ID3v2Header{3, 0, false, false, false, false, 273649},
+	testFile(t, fileTest{"test_iso8859_1.mp3", SimpleTags{&ID3v2Header{3, 0, false, false, false, false, 273649},
 		"Pompeii Am Götterdämmerung", "The Flaming Lips", "At War With The Mystics", "2006", "11", "1/1", "Unknown", ""}})
 }
