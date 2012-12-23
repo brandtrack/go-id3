@@ -65,6 +65,14 @@ var ID3v24Tags = map[string]string {
 	"TLEN": "length",
 }
 
+func hasID3v2Tag(reader *bufio.Reader) bool {
+	data, err := reader.Peek(3)
+	if err != nil || len(data) < 3 {
+		return false
+	}
+	return string(data) == "ID3"
+}
+
 func parseID3v2Header(reader *bufio.Reader) (*ID3v2Header, error) {
 	h := new(ID3v2Header)
 	data, err := readBytes(reader, 10)

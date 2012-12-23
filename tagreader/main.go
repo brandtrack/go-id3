@@ -29,14 +29,16 @@ func dumpFile(path string) {
 	}
 	defer f.Close()
 
-	tags, err := id3.Read(f)
+	tags, err := id3.ReadFile(f)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "id3.Read(%s): %s\n", path, err)
 		return
 	}
 
 	fmt.Println(path)
-	fmt.Printf("Header\t%#v\n", *tags.Header)
+	if tags.Header != nil {
+		fmt.Printf("Header\t%#v\n", *tags.Header)
+	}
 	fmt.Printf("Name\t%s\n", tags.Name)
 	fmt.Printf("Artist\t%s\n", tags.Artist)
 	fmt.Printf("Album\t%s\n", tags.Album)

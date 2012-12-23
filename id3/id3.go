@@ -45,8 +45,7 @@ type File struct {
 // to seek in the input.
 func Read(reader io.Reader) (*File, error) {
 	buf := bufio.NewReader(reader)
-	data, err := buf.Peek(3)
-	if err != nil || len(data) < 3 || string(data) != "ID3" {
+	if !hasID3v2Tag(buf) {
 		return nil, fmt.Errorf("no id3 tags")
 	}
 	tags, err := parseID3v2File(buf)
@@ -54,4 +53,22 @@ func Read(reader io.Reader) (*File, error) {
 		return nil, err
 	}
 	return tags, nil
+}
+
+func ReadFile(reader io.ReadSeeker) (*File, error) {
+	buf := bufio.NewReader(reader)
+	if hasID3v1Tag(reader) {
+		tags, err := parseID3v1File(reader)
+		if err != nil {
+			return nil, err
+		}
+		return tags, err
+	} else if hasID3v2Tag(buf) {
+		tags, err := parseID3v2File(buf)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing ID3v2 tags")
+		}
+		return tags, err
+	}
+	return nil, fmt.Errorf("no id3 tags")
 }
