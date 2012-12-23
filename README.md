@@ -23,7 +23,7 @@ Pass in a suitable io.Reader and away you go!
             return err
     }
     defer f.Close()
-    tags, err := id3.Read(f)
+    tags, err := id3.ReadFile(f)
     if err != nil {
             return err
     }
