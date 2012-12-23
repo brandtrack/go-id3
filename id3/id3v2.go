@@ -134,10 +134,10 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 	default:
 		return nil, fmt.Errorf("Unrecognized ID3v2 version: %d", header.Version)
 	}
-	lreader := bufio.NewReader(io.LimitReader(reader, int64(header.Size)))
 
 	file := new(File)
 	file.Header = header
+	lreader := bufio.NewReader(io.LimitReader(reader, int64(header.Size)))
 	for hasFrame(lreader, tagLen) {
 		b, err := readBytes(lreader, tagLen)
 		if err != nil {
@@ -148,7 +148,7 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 		if err != nil {
 			return nil, err
 		}
-		// skip frame flags (not present in ID3v2.1)
+		// skip frame flags (only present in 2.3 and v2.4)
 		if header.Version == 3 || header.Version == 4 {
 			skipBytes(lreader, 2)
 		}

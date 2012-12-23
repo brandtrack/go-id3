@@ -34,5 +34,5 @@ Examples
 --------
 An example tag reading program can be found under id3/tagreader.
 
-    go get github.com/bpowers/go-id3/tagreader
+    go get github.com/bobertlo/go-id3/tagreader
     tagreader path/to/file.mp3 [...]
