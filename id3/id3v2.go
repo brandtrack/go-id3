@@ -17,8 +17,8 @@ package id3
 import (
 	"bufio"
 	"encoding/binary"
-	"io"
 	"fmt"
+	"io"
 )
 
 // A parsed ID3v2 header as defined in Section 3 of
@@ -33,7 +33,7 @@ type ID3v2Header struct {
 	Size              int32
 }
 
-var ID3v22Tags = map[string]string {
+var ID3v22Tags = map[string]string{
 	"TAL": "album",
 	"TRK": "track",
 	"TP1": "artist",
@@ -43,7 +43,7 @@ var ID3v22Tags = map[string]string {
 	"TCO": "genre",
 }
 
-var ID3v23Tags = map[string]string {
+var ID3v23Tags = map[string]string{
 	"TALB": "album",
 	"TRCK": "track",
 	"TPE1": "artist",
@@ -54,7 +54,7 @@ var ID3v23Tags = map[string]string {
 	"TLEN": "length",
 }
 
-var ID3v24Tags = map[string]string {
+var ID3v24Tags = map[string]string{
 	"TALB": "album",
 	"TRCK": "track",
 	"TPE1": "artist",
@@ -187,5 +187,3 @@ func parseID3v2File(reader *bufio.Reader) (*File, error) {
 	}
 	return file, nil
 }
-
-
