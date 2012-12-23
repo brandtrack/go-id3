@@ -37,7 +37,7 @@ func dumpFile(path string) {
 
 	fmt.Println(path)
 	if tags.Header != nil {
-		fmt.Printf("Header\t%#v\n", *tags.Header)
+		fmt.Printf("ID3v2 Header\t%#v\n", *tags.Header)
 	}
 	fmt.Printf("Name\t%s\n", tags.Name)
 	fmt.Printf("Artist\t%s\n", tags.Artist)
