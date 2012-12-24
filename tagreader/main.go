@@ -36,14 +36,14 @@ func dumpFile(path string) {
 	}
 
 	fmt.Println(path)
-	fmt.Printf("Title\t%s\n", tags.Title)
-	fmt.Printf("Artist\t%s\n", tags.Artist)
-	fmt.Printf("Album\t%s\n", tags.Album)
-	fmt.Printf("Year\t%s\n", tags.Year)
-	fmt.Printf("Track\t%s\n", tags.Track)
-	fmt.Printf("Disc\t%s\n", tags.Disc)
-	fmt.Printf("Genre\t%s\n", tags.Genre)
-	fmt.Printf("Length\t%s\n", tags.Length)
+	fmt.Printf("Title\t%s\n", tags["title"])
+	fmt.Printf("Artist\t%s\n", tags["artist"])
+	fmt.Printf("Album\t%s\n", tags["album"])
+	fmt.Printf("Year\t%s\n", tags["year"])
+	fmt.Printf("Track\t%s\n", tags["track"])
+	fmt.Printf("Disc\t%s\n", tags["disc"])
+	fmt.Printf("Genre\t%s\n", tags["genre"])
+	fmt.Printf("Length\t%s\n", tags["length"])
 	fmt.Println()
 }
 

@@ -15,11 +15,23 @@
 package id3
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"strings"
 )
+
+type ID3v1Frame struct {
+	name   string
+	length int
+}
+
+var ID3v1Frames = []ID3v1Frame{
+	{"title", 30},
+	{"artist", 30},
+	{"album", 30},
+	{"year", 4},
+	{"comment", 30},
+}
 
 func hasID3v1Tag(reader io.ReadSeeker) bool {
 	origin, err := reader.Seek(0, 1)
@@ -39,63 +51,61 @@ func hasID3v1Tag(reader io.ReadSeeker) bool {
 	return string(buf) == "TAG"
 }
 
-func parseID3v1File(reader io.ReadSeeker) (*SimpleTags, error) {
+func readID3v1String(reader io.Reader, c int) (string, error) {
+	data, err := readBytes(reader, c)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimRight(string(data), "\u0000"), nil
+}
+
+func parseID3v1File(reader io.ReadSeeker) (map[string]string, error) {
 	origin, err := reader.Seek(-128, 2)
 	if err != nil {
 		return nil, fmt.Errorf("seek failed")
 	}
-	buf := bufio.NewReader(reader)
 
-	header, err := readBytes(buf, 3)
+	// verify tag header
+	header, err := readID3v1String(reader, 3)
+	if err != nil || header != "TAG" {
+		return nil, fmt.Errorf("could not parse ID3v1 tag")
+	}
+
+	tags := map[string]string{}
+
+	// parse simple string frames
+	for _, v := range ID3v1Frames {
+		str, err := readID3v1String(reader, v.length)
+		if err != nil {
+			return nil, fmt.Errorf("read error")
+		}
+		tags[v.name] = str
+	}
+
+	// parse track number (if present)
+	_, err = reader.Seek(-2, 1)
+	if err != nil {
+		return nil, fmt.Errorf("seek error")
+	}
+	data, err := readBytes(reader, 2)
 	if err != nil {
 		return nil, fmt.Errorf("read error")
 	}
-	if string(header) != "TAG" {
-		return nil, fmt.Errorf("ID3v1 tag not found")
-	}
-	tags := new(SimpleTags)
-
-	data, err := readBytes(buf, 30)
-	if err != nil {
-		return nil, fmt.Errorf("read error")
-	}
-	tags.Title = strings.TrimRight(string(data), "\u0000")
-
-	data, err = readBytes(buf, 30)
-	if err != nil {
-		return nil, fmt.Errorf("read error")
-	}
-	tags.Artist = strings.TrimRight(string(data), "\u0000")
-
-	data, err = readBytes(buf, 30)
-	if err != nil {
-		return nil, fmt.Errorf("read error")
-	}
-	tags.Album = strings.TrimRight(string(data), "\u0000")
-
-	data, err = readBytes(buf, 4)
-	if err != nil {
-		return nil, fmt.Errorf("read error")
-	}
-	tags.Year = strings.TrimRight(string(data), "\u0000")
-
-	data, err = readBytes(buf, 30)
-	if err != nil {
-		return nil, fmt.Errorf("read error")
-	}
-	if data[28] == 0 {
-		tags.Track = fmt.Sprint(data[29])
+	if data[0] == 0 {
+		tags["track"] = fmt.Sprint(data[1])
 	}
 
-	data, err = readBytes(buf, 1)
+	// parse genre
+	data, err = readBytes(reader, 1)
 	if err != nil {
 		return nil, fmt.Errorf("read error")
 	}
 	if int(data[0]) > len(id3v1Genres) {
-		tags.Genre = "Unspecified"
+		tags["genre"] = "Unspecified"
 	} else {
-		tags.Genre = id3v1Genres[int(data[0])]
+		tags["genre"] = id3v1Genres[int(data[0])]
 	}
+
 	reader.Seek(origin, 0)
 	return tags, nil
 }

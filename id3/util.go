@@ -17,6 +17,7 @@ package id3
 import (
 	"bufio"
 	"fmt"
+	"io"
 )
 
 var skipBuffer []byte = make([]byte, 1024*4)
@@ -59,7 +60,7 @@ func toUTF16(data []byte) []uint16 {
 	return s
 }
 
-func readBytes(reader *bufio.Reader, c int) ([]byte, error) {
+func readBytes(reader io.Reader, c int) ([]byte, error) {
 	b := make([]byte, c)
 
 	n, err := reader.Read(b)
