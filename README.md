@@ -16,7 +16,7 @@ album, track, etc...
 
 Usage
 -----
-Pass in a suitable io.Reader and away you go!
+Pass in a suitable io.ReadSeeker and away you go!
 
     f, err := os.Open("foo.mp3")
     if err != nil {
@@ -27,7 +27,7 @@ Pass in a suitable io.Reader and away you go!
     if err != nil {
             return err
     }
-    fmt.Println(tags.Artist)
+    fmt.Println(tags["artist"])
 
 
 Examples
