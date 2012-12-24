@@ -14,12 +14,6 @@
 
 package id3
 
-import (
-	"fmt"
-	"strconv"
-	"strings"
-)
-
 var id3v1Genres = []string{
 	"Blues",
 	"Classic Rock",
@@ -101,45 +95,4 @@ var id3v1Genres = []string{
 	"Musical",
 	"Rock & Roll",
 	"Hard Rock",
-}
-
-// ID3v2.2 and ID3v2.3 use "(NN)" where as ID3v2.4 simply uses "NN" when
-// referring to ID3v1 genres. The "(NN)" format is allowed to have trailing
-// information.
-//
-// RX and CR are shorthand for Remix and Cover, respectively.
-//
-// Refer to the following documentation:
-//   http://id3.org/id3v2-00          TCO frame
-//   http://id3.org/id3v2.3.0         TCON frame
-//   http://id3.org/id3v2.4.0-frames  TCON frame
-func convertID3v1Genre(genre string) string {
-	if genre == "RX" || strings.HasPrefix(genre, "(RX)") {
-		return "Remix"
-	}
-	if genre == "CR" || strings.HasPrefix(genre, "(CR)") {
-		return "Cover"
-	}
-
-	// Try to parse "NN" format.
-	index, err := strconv.Atoi(genre)
-	if err == nil {
-		if index >= 0 && index < len(id3v1Genres) {
-			return id3v1Genres[index]
-		}
-		return "Unknown"
-	}
-
-	// Try to parse "(NN)" format.
-	index = 0
-	_, err = fmt.Sscanf(genre, "(%d)", &index)
-	if err == nil {
-		if index >= 0 && index < len(id3v1Genres) {
-			return id3v1Genres[index]
-		}
-		return "Unknown"
-	}
-
-	// Couldn't parse so it's likely not an ID3v1 genre.
-	return genre
 }
