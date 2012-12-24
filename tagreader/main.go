@@ -36,7 +36,7 @@ func dumpFile(path string) {
 	}
 
 	fmt.Println(path)
-	fmt.Printf("Name\t%s\n", tags.Name)
+	fmt.Printf("Title\t%s\n", tags.Title)
 	fmt.Printf("Artist\t%s\n", tags.Artist)
 	fmt.Printf("Album\t%s\n", tags.Album)
 	fmt.Printf("Year\t%s\n", tags.Year)

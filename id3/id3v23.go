@@ -23,7 +23,7 @@ var ID3v23Tags = map[string]string{
 	"TALB": "album",
 	"TRCK": "track",
 	"TPE1": "artist",
-	"TIT2": "name",
+	"TIT2": "title",
 	"TYER": "year",
 	"TPOS": "disc",
 	"TCON": "genre",

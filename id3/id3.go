@@ -27,7 +27,7 @@ import (
 
 // A parsed ID3 file with common fields exposed.
 type SimpleTags struct {
-	Name   string
+	Title   string
 	Artist string
 	Album  string
 	Year   string

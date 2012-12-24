@@ -88,8 +88,8 @@ func parseID3v2File(reader *bufio.Reader) (*SimpleTags, error) {
 			tags.Track = readID3v2String(lreader, size)
 		case "artist":
 			tags.Artist = readID3v2String(lreader, size)
-		case "name":
-			tags.Name = readID3v2String(lreader, size)
+		case "title":
+			tags.Title = readID3v2String(lreader, size)
 		case "year":
 			tags.Year = readID3v2String(lreader, size)
 		case "disc":

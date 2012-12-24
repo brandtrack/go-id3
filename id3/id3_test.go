@@ -67,10 +67,10 @@ func testFile(t *testing.T, expected fileTest) {
 		t.Errorf("Header.Size: expected %d got %d", header.Size, actual.Header.Size)
 	}
 
-	// Name, Artist, etc...
+	// Title, Artist, etc...
 	file := expected.file
-	if actual.Name != file.Name {
-		t.Errorf("Name: expected '%s' got '%s'", file.Name, actual.Name)
+	if actual.Title != file.Title {
+		t.Errorf("Title: expected '%s' got '%s'", file.Title, actual.Title)
 	}
 	if actual.Artist != file.Artist {
 		t.Errorf("Artist: expected '%s' got '%s'", file.Artist, actual.Artist)

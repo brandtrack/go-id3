@@ -59,7 +59,7 @@ func parseID3v1File(reader io.ReadSeeker) (*SimpleTags, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read error")
 	}
-	tags.Name = strings.TrimRight(string(data), "\u0000")
+	tags.Title = strings.TrimRight(string(data), "\u0000")
 
 	data, err = readBytes(buf, 30)
 	if err != nil {
