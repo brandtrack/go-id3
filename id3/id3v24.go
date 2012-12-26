@@ -20,13 +20,22 @@ import (
 
 var ID3v24Tags = map[string]string{
 	"TALB": "album",
-	"TRCK": "track",
 	"TPE1": "artist",
-	"TIT2": "title",
-	"TDRC": "year",
+	"COMM": "comments",
+	"TCOM": "composer",
+	"TCOP": "copyright",
 	"TPOS": "disc",
+	"TENC": "encodedby",
+	"TSSE": "encoder",
 	"TCON": "genre",
+	"TLAN": "language",
 	"TLEN": "length",
+	"TMED": "media",
+	"TOPE": "originalartist",
+	"TIT2": "title",
+	"TRCK": "track",
+	"TEXT": "writer",
+	"TDRC": "year",
 }
 
 // ID3 v2.4 uses sync-safe frame sizes similar to those found in the header.

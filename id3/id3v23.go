@@ -21,13 +21,22 @@ import (
 
 var ID3v23Tags = map[string]string{
 	"TALB": "album",
-	"TRCK": "track",
 	"TPE1": "artist",
-	"TIT2": "title",
-	"TYER": "year",
+	"COMM": "comments",
+	"TCOM": "composer",
+	"TCOP": "copyright",
 	"TPOS": "disc",
+	"TENC": "encodedby",
+	"TSSE": "encoder",
 	"TCON": "genre",
+	"TLAN": "language",
 	"TLEN": "length",
+	"TMED": "media",
+	"TOPE": "originalartist",
+	"TIT2": "title",
+	"TRCK": "track",
+	"TEXT": "writer",
+	"TYER": "year",
 }
 
 // ID3 v2.3 doesn't use sync-safe frame sizes: read in as a regular big endian number.

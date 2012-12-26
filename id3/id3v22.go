@@ -20,12 +20,21 @@ import (
 
 var ID3v22Tags = map[string]string{
 	"TAL": "album",
-	"TRK": "track",
 	"TP1": "artist",
-	"TT2": "title",
-	"TYE": "year",
+	"COM": "comments",
+	"TCM": "composer",
+	"TCR": "copyright",
 	"TPA": "disc",
 	"TCO": "genre",
+	"TEN": "encodedby",
+	"TSS": "encoder",
+	"TLA": "language",
+	"TMT": "media",
+	"TOA": "originalartist",
+	"TT2": "title",
+	"TRK": "track",
+	"TXT": "writer",
+	"TYE": "year",
 }
 
 // ID3 v2.2 uses 24-bit big endian frame sizes.
