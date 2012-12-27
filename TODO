@@ -4,6 +4,7 @@ General
   - ID3 (un)synchronization handling
   - ID3 v2.4 timestamp parsing
   - Pictures!
+  - Replace all panic()'s with error handling
 
 Unicode support
 ---------------
