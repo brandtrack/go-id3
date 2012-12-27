@@ -100,7 +100,7 @@ func parseID3v1File(reader io.ReadSeeker) (map[string]string, error) {
 	if err != nil {
 		return nil, fmt.Errorf("read error")
 	}
-	if int(data[0]) > len(id3v1Genres) {
+	if int(data[0]) >= len(id3v1Genres) {
 		tags["genre"] = "Unspecified"
 	} else {
 		tags["genre"] = id3v1Genres[int(data[0])]
