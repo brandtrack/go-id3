@@ -32,7 +32,7 @@ func ISO8859_1ToUTF8(data []byte) string {
 
 func toUTF16(data []byte) []uint16 {
 	if len(data) < 2 {
-		panic("Sequence is too short too contain a UTF-16 BOM")
+		return []uint16{}
 	}
 	if len(data)%2 > 0 {
 		// TODO: if this is UTF-16 BE then this is likely encoded wrong
