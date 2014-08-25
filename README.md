@@ -18,16 +18,26 @@ Usage
 -----
 Pass in a suitable io.ReadSeeker and away you go!
 
-    f, err := os.Open("foo.mp3")
-    if err != nil {
-            return err
+    package main
+    import (
+            "os"
+            "fmt"
+            "github.com/bobertlo/go-id3/id3"
+    )
+    
+    func main() {
+            f, err := os.Open("foo.mp3")
+            if err != nil {
+                    return
+            }
+            defer f.Close()
+            tags, err := id3.ReadFile(f)
+            if err != nil {
+                    return
+            }
+            fmt.Println("Title: ", tags["title"])
+            fmt.Println("Artist: ", tags["artist"])
     }
-    defer f.Close()
-    tags, err := id3.ReadFile(f)
-    if err != nil {
-            return err
-    }
-    fmt.Println(tags["artist"])
 
 
 Examples
