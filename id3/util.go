@@ -32,7 +32,7 @@ func ISO8859_1ToUTF8(data []byte) string {
 
 func toUTF16(data []byte) []uint16 {
 	if len(data) < 2 {
-		panic("Sequence is too short too contain a UTF-16 BOM")
+		return []uint16{}
 	}
 	if len(data)%2 > 0 {
 		// TODO: if this is UTF-16 BE then this is likely encoded wrong
@@ -50,7 +50,7 @@ func toUTF16(data []byte) []uint16 {
 		shift1 = 0
 		panic("UTF-16 BE found!")
 	} else {
-		panic(fmt.Sprintf("Unrecognized UTF-16 BOM: 0x%02X%02X", data[0], data[1]))
+		return []uint16{}
 	}
 
 	s := make([]uint16, 0, len(data)/2)
