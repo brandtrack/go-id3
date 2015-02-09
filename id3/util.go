@@ -16,6 +16,7 @@ package id3
 
 import (
 	"bufio"
+	"encoding/binary"
 	"fmt"
 	"io"
 )
@@ -30,34 +31,32 @@ func ISO8859_1ToUTF8(data []byte) string {
 	return string(p)
 }
 
-func toUTF16(data []byte) []uint16 {
+func toUTF16(data []byte) ([]uint16, error) {
 	if len(data) < 2 {
-		return []uint16{}
+		return []uint16{}, nil
 	}
 	if len(data)%2 > 0 {
 		// TODO: if this is UTF-16 BE then this is likely encoded wrong
 		data = append(data, 0)
 	}
 
-	var shift0, shift1 uint
+	var bo binary.ByteOrder
+
 	if data[0] == 0xFF && data[1] == 0xFE {
 		// UTF-16 LE
-		shift0 = 0
-		shift1 = 8
+		bo = binary.LittleEndian
 	} else if data[0] == 0xFE && data[1] == 0xFF {
 		// UTF-16 BE
-		shift0 = 8
-		shift1 = 0
-		panic("UTF-16 BE found!")
+		bo = binary.BigEndian
 	} else {
-		return []uint16{}
+		return []uint16{}, nil
 	}
 
 	s := make([]uint16, 0, len(data)/2)
 	for i := 2; i < len(data); i += 2 {
-		s = append(s, uint16(data[i])<<shift0|uint16(data[i+1])<<shift1)
+		s = append(s, bo.Uint16(data[i:i+2]))
 	}
-	return s
+	return s, nil
 }
 
 func readBytes(reader io.Reader, c int) ([]byte, error) {
@@ -73,7 +72,7 @@ func readBytes(reader io.Reader, c int) ([]byte, error) {
 	return b, nil
 }
 
-func skipBytes(reader *bufio.Reader, c int) {
+func skipBytes(reader *bufio.Reader, c int) error {
 	pos := 0
 	for pos < c {
 		end := c - pos
@@ -84,7 +83,8 @@ func skipBytes(reader *bufio.Reader, c int) {
 		i, err := reader.Read(skipBuffer[0:end])
 		pos += i
 		if err != nil {
-			panic(err)
+			return fmt.Errorf("Failed to skip bytes")
 		}
 	}
+	return nil
 }

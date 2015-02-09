@@ -85,32 +85,44 @@ func parseID3v2Size(data []byte) int32 {
 //   0x04  UTF-8
 //
 // Refer to section 4 of http://id3.org/id3v2.4.0-structure
-func parseID3v2String(data []byte) string {
+func parseID3v2String(data []byte) (string, error) {
 	var s string
 	switch data[0] {
 	case 0: // ISO-8859-1 text.
+		fmt.Printf("ISO8859\n")
 		s = ISO8859_1ToUTF8(data[1:])
 		break
 	case 1: // UTF-16 with BOM.
-		s = string(utf16.Decode(toUTF16(data[1:])))
+		fmt.Printf("UTF-16-BOM\n")
+		fmt.Printf("Data: %v\n", data)
+		utf, err := toUTF16(data[1:])
+		fmt.Printf("UTF: %v\n", utf)
+		if err != nil {
+			return "", err
+		}
+		s = string(utf16.Decode(utf))
 		break
 	case 2: // UTF-16BE without BOM.
-		panic("Unsupported text encoding UTF-16BE.")
+		fmt.Printf("UTF-16-NoBOM\n")
+		return "", fmt.Errorf("Unsupported text encoding UTF-16BE.")
 	case 3: // UTF-8 text.
+		fmt.Printf("UTF-8\n")
+
 		s = string(data[1:])
 		break
 	default:
+		fmt.Printf("No encoding\n")
+
 		// No encoding, assume ISO-8859-1 text.
 		s = ISO8859_1ToUTF8(data)
 	}
-	return strings.TrimRight(s, "\u0000")
+	return strings.TrimRight(s, "\u0000"), nil
 }
 
-func readID3v2String(reader *bufio.Reader, c int) string {
+func readID3v2String(reader *bufio.Reader, c int) (string, error) {
 	b, err := readBytes(reader, c)
 	if err != nil {
-		// FIXME: return an error
-		return ""
+		return "", err
 	}
 	return parseID3v2String(b)
 }
@@ -156,12 +168,14 @@ func convertID3v1Genre(genre string) string {
 	return genre
 }
 
-func readID3v2Genre(reader *bufio.Reader, c int) string {
+func readID3v2Genre(reader *bufio.Reader, c int) (string, error) {
 	b, err := readBytes(reader, c)
 	if err != nil {
-		// FIXME: return an error
-		return ""
+		return "", err
 	}
-	genre := parseID3v2String(b)
-	return convertID3v1Genre(genre)
+	genre, err := parseID3v2String(b)
+	if err != nil {
+		return "", err
+	}
+	return convertID3v1Genre(genre), nil
 }

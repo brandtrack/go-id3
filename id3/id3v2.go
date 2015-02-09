@@ -82,9 +82,15 @@ func parseID3v2File(reader *bufio.Reader) (map[string]string, error) {
 			continue
 		}
 		if id == "genre" {
-			tags[id] = readID3v2Genre(lreader, size)
+			tags[id], err = readID3v2Genre(lreader, size)
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			tags[id] = readID3v2String(lreader, size)
+			tags[id], err = readID3v2String(lreader, size)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 	return tags, nil
