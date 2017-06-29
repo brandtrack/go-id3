@@ -68,9 +68,9 @@ func parseID3v2Header(reader *bufio.Reader) (*ID3v2Header, error) {
 func parseID3v2Size(data []byte) int32 {
 	size := int32(0)
 	for i, b := range data {
-		if b&0x80 > 0 {
-			fmt.Println("Size byte had non-zero first bit")
-		}
+		//if b&0x80 > 0 {
+		//	fmt.Println("Size byte had non-zero first bit")
+		//}
 
 		shift := uint32(len(data)-i-1) * 7
 		size |= int32(b&0x7f) << shift
@@ -89,30 +89,21 @@ func parseID3v2String(data []byte) (string, error) {
 	var s string
 	switch data[0] {
 	case 0: // ISO-8859-1 text.
-		fmt.Printf("ISO8859\n")
 		s = ISO8859_1ToUTF8(data[1:])
 		break
 	case 1: // UTF-16 with BOM.
-		fmt.Printf("UTF-16-BOM\n")
-		fmt.Printf("Data: %v\n", data)
 		utf, err := toUTF16(data[1:])
-		fmt.Printf("UTF: %v\n", utf)
 		if err != nil {
 			return "", err
 		}
 		s = string(utf16.Decode(utf))
 		break
 	case 2: // UTF-16BE without BOM.
-		fmt.Printf("UTF-16-NoBOM\n")
 		return "", fmt.Errorf("Unsupported text encoding UTF-16BE.")
 	case 3: // UTF-8 text.
-		fmt.Printf("UTF-8\n")
-
 		s = string(data[1:])
 		break
 	default:
-		fmt.Printf("No encoding\n")
-
 		// No encoding, assume ISO-8859-1 text.
 		s = ISO8859_1ToUTF8(data)
 	}
