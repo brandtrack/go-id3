@@ -21,26 +21,33 @@ package id3
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 )
 
-// Parse seekable stream for ID3 information. Returns nil if ID3 tag is
-// not found or parsing fails.
+// ReadFile parses seekable stream for ID3 information. Returns nil if
+// ID3 tag is not found or parsing fails.
 func ReadFile(reader io.ReadSeeker) (map[string]string, error) {
 	buf := bufio.NewReader(reader)
-	if hasID3v1Tag(reader) {
-		tags, err := parseID3v1File(reader)
-		if err != nil {
-			return nil, err
-		}
-		return tags, err
-	} else if hasID3v2Tag(buf) {
-		tags, err := parseID3v2File(buf)
-		if err != nil {
-			return nil, fmt.Errorf("error parsing ID3v2 tags")
-		}
-		return tags, err
+
+	tags, v2err := parseID3v2File(buf)
+	v1Tags, v1err := parseID3v1File(reader)
+
+	if v1err != nil && v2err != nil {
+		return nil, errors.New("Could not parse ID3 tags")
 	}
-	return nil, fmt.Errorf("no id3 tags")
+
+	// Merge both results, prioricing id3v2
+	for k, v := range v1Tags {
+		if _, ok := tags[k]; !ok {
+			tags[k] = v
+		}
+	}
+
+	if len(tags) == 0 {
+		return nil, fmt.Errorf("no id3 tags")
+	}
+
+	return tags, nil
 }
