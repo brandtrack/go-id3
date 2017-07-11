@@ -21,7 +21,6 @@ package id3
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 )
@@ -35,10 +34,10 @@ func ReadFile(reader io.ReadSeeker) (map[string]string, error) {
 	v1Tags, v1err := parseID3v1File(reader)
 
 	if v1err != nil && v2err != nil {
-		return nil, errors.New("Could not parse ID3 tags")
+		return nil, fmt.Errorf("Error parsing ID3 tags: %v, %v", v1err, v2err)
 	}
 
-	// Merge both results, prioricing id3v2
+	// Merge both results, prioritising id3v2
 	for k, v := range v1Tags {
 		if _, ok := tags[k]; !ok {
 			tags[k] = v
@@ -46,7 +45,7 @@ func ReadFile(reader io.ReadSeeker) (map[string]string, error) {
 	}
 
 	if len(tags) == 0 {
-		return nil, fmt.Errorf("no id3 tags")
+		return nil, fmt.Errorf("No ID3 tags found on file")
 	}
 
 	return tags, nil
