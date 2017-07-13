@@ -30,6 +30,10 @@ import (
 func ReadFile(reader io.ReadSeeker) (map[string]string, error) {
 	buf := bufio.NewReader(reader)
 
+	// Initialize tags map so that we don't panic when assigning v1 tags
+	// if there are no v2 tags present.
+	tags := make(map[string]string)
+
 	tags, v2err := parseID3v2File(buf)
 	v1Tags, v1err := parseID3v1File(reader)
 
