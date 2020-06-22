@@ -41,6 +41,12 @@ func ReadFile(reader io.ReadSeeker) (map[string]string, error) {
 		return nil, fmt.Errorf("Error parsing ID3 tags: %v, %v", v1err, v2err)
 	}
 
+	//If v2err returned an error tags will be nil
+	//At this point v1Tags is valid and we will set tag as an empty map so we can prevent system from panicking
+	if tags == nil {
+		tag = map[string]interface{}{}
+	}
+
 	// Merge both results, prioritising id3v2
 	for k, v := range v1Tags {
 		if _, ok := tags[k]; !ok {
